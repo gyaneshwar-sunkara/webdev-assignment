@@ -1,6 +1,8 @@
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
 
 import { Grid, Snackbar, Button, makeStyles } from "@material-ui/core";
+
+import { GlobalContext } from "../context/GlobalState";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -16,39 +18,58 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 export default function Home(props) {
+  const { user } = useContext(GlobalContext);
   const classes = useStyles();
   const [snack, setSnack] = useState({
     open: false,
     message: "",
   });
+  const perms = props.perms;
+
+  function onClick(e) {
+    if (user.role === "Admin") {
+      setSnack({ open: true, message: "Access Green Button" });
+    }
+  }
+  function onClick2(e) {
+    if (user.role === "Admin") {
+      setSnack({ open: true, message: "Access Red Button" });
+    }
+  }
 
   return (
     <React.Fragment>
       <div className={classes.root}>
         <Grid className={classes.paper} container spacing={2}>
           <Grid item xs={12}>
-            <Button
-              variant="outlined"
-              style={{ color: "green" }}
-              className={classes.margin}
-            >
-              Access Green Button
-            </Button>
+            {perms.includes("AccessGreenButton") ? (
+              <Button
+                variant="outlined"
+                style={{ color: "green" }}
+                className={classes.margin}
+                onClick={onClick}
+              >
+                Access Green Button
+              </Button>
+            ) : null}
           </Grid>
           <Grid item xs={12}>
-            <Button
-              variant="outlined"
-              style={{ color: "red" }}
-              className={classes.margin}
-            >
-              Access Red Button
-            </Button>
+            {perms.includes("AccessRedButton") ? (
+              <Button
+                variant="outlined"
+                style={{ color: "red" }}
+                className={classes.margin}
+                onClick={onClick2}
+              >
+                Access Red Button
+              </Button>
+            ) : null}
           </Grid>
         </Grid>
         <Snackbar
           open={snack.open}
           message={snack.message}
-          autoHideDuration={3000}
+          autoHideDuration={5000}
           onClose={(e, r) => {
             if (r === "clickaway") return;
             setSnack({ open: false, message: "" });

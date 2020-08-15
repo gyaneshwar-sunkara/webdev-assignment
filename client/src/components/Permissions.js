@@ -1,5 +1,6 @@
-import React, { useContext, useState } from "react";
+import React, { useContext, useState, useEffect } from "react";
 import { Redirect } from "react-router-dom";
+import axios from "axios";
 
 import { GlobalContext } from "../context/GlobalState";
 import {
@@ -45,11 +46,12 @@ const rows = [
 ];
 
 export default function Permissions() {
-  const { user } = useContext(GlobalContext);
+  const { user, token } = useContext(GlobalContext);
   const [snack, setSnack] = useState({
     open: false,
     message: "",
   });
+  const [customers, setCustomers] = React.useState([]);
   const [page, setPage] = React.useState(0);
   const [rowsPerPage, setRowsPerPage] = React.useState(10);
   const handleChangePage = (event, newPage) => {
@@ -61,6 +63,41 @@ export default function Permissions() {
     setPage(0);
   };
 
+  function getCustomers() {
+    axios({
+      method: "GET",
+      url: "/api/users/all",
+      headers: {
+        "x-auth-token": token,
+      },
+    })
+      .then((res) => {
+        setCustomers(res.data.users);
+      })
+      .catch((err) => {
+        if (err.response) {
+          if (err.response.status === 400) {
+            setSnack({ open: true, message: err.response.data.msg });
+          } else if (err.response.status === 500) {
+            setSnack({
+              open: true,
+              message: "Can't seem to reach the server at the moment!",
+            });
+          } else {
+            setSnack({ open: true, message: err.message });
+          }
+        } else {
+          setSnack({ open: true, message: err.message });
+        }
+      });
+  }
+
+  useEffect(() => {
+    getCustomers();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  console.log(customers);
   return (
     <React.Fragment>
       <Auth user={user} />
@@ -68,12 +105,10 @@ export default function Permissions() {
         <Table>
           <TableHead>
             <TableRow>
+              <TableCell>Name</TableCell>
+              <TableCell align="right">Email</TableCell>
+              <TableCell align="right">Role</TableCell>
               <TableCell />
-              <TableCell>Dessert (100g serving)</TableCell>
-              <TableCell align="right">Calories</TableCell>
-              <TableCell align="right">Fat&nbsp;(g)</TableCell>
-              <TableCell align="right">Carbs&nbsp;(g)</TableCell>
-              <TableCell align="right">Protein&nbsp;(g)</TableCell>
             </TableRow>
           </TableHead>
           <TableBody></TableBody>

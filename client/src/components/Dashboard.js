@@ -21,10 +21,7 @@ import Home from "./Home";
 
 const useStyles = makeStyles((theme) => ({
   root: {
-    flexGrow: 1,
-  },
-  paper: {
-    padding: theme.spacing(2),
+    margin: theme.spacing(1),
     textAlign: "center",
   },
 }));
@@ -84,19 +81,12 @@ export default function Dashboard() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  console.log(permissions);
-
   return (
     <React.Fragment>
       <Auth auth={!isSignedIn()} />
       <Router>
         <div className={classes.root}>
-          <Container
-            component="main"
-            justify="center"
-            maxWidth="lg"
-            className={classes.paper}
-          >
+          <Container component="main" justify="center" maxWidth="lg">
             <Grid container spacing={2}>
               <Grid item xs={9}>
                 <Paper square>
@@ -126,25 +116,6 @@ export default function Dashboard() {
                     ) : null}
                   </Tabs>
                 </Paper>
-                <Paper style={{ marginTop: "2rem" }}>
-                  <Switch>
-                    <Route exact path={`${match.path}/permissions`}>
-                      <Permissions />
-                    </Route>
-                    <Route exact path={`${match.path}`}>
-                      <Home />
-                    </Route>
-                  </Switch>
-                  <Snackbar
-                    open={snack.open}
-                    message={snack.message}
-                    autoHideDuration={3000}
-                    onClose={(e, r) => {
-                      if (r === "clickaway") return;
-                      setSnack({ open: false, message: "" });
-                    }}
-                  />
-                </Paper>
               </Grid>
               <Grid item xs={2}>
                 <Button variant="contained" color="secondary" onClick={signOut}>
@@ -152,6 +123,25 @@ export default function Dashboard() {
                 </Button>
               </Grid>
             </Grid>
+            <Paper style={{ marginTop: "2rem" }}>
+              <Switch>
+                <Route exact path={`${match.path}/permissions`}>
+                  <Permissions />
+                </Route>
+                <Route exact path={`${match.path}`}>
+                  <Home perms={permissions} />
+                </Route>
+              </Switch>
+              <Snackbar
+                open={snack.open}
+                message={snack.message}
+                autoHideDuration={3000}
+                onClose={(e, r) => {
+                  if (r === "clickaway") return;
+                  setSnack({ open: false, message: "" });
+                }}
+              />
+            </Paper>
           </Container>
         </div>
       </Router>

@@ -146,7 +146,7 @@ exports.ReadAll = (req, res) => {
     User.find({ role: Role.Customer })
       .select("-password -__v")
       .then((users) => {
-        return res.json({ users: users });
+        return res.json({ users });
       });
   }
 };
