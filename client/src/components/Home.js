@@ -33,13 +33,17 @@ export default function Home(props) {
   const perms = props.perms;
 
   function onClick(e) {
-    if (user.role === "Admin") {
-      setSnack({ open: true, message: "Access Green Button" });
+    if (user !== null) {
+      if (user.role === "Admin") {
+        setSnack({ open: true, message: "Access Green Button" });
+      }
     }
   }
   function onClick2(e) {
-    if (user.role === "Admin") {
-      setSnack({ open: true, message: "Access Red Button" });
+    if (user !== null) {
+      if (user.role === "Admin") {
+        setSnack({ open: true, message: "Access Red Button" });
+      }
     }
   }
 

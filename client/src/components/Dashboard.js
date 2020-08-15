@@ -107,9 +107,12 @@ export default function Dashboard() {
   }
 
   useEffect(() => {
-    getPermissions();
-    if (user.role === "Admin") {
-      getCustomers();
+    if (user !== null) {
+      getPermissions();
+
+      if (user.role === "Admin") {
+        getCustomers();
+      }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -139,7 +142,7 @@ export default function Dashboard() {
                     centered
                   >
                     <Tab label="Home" component={Link} to={`${match.url}`} />
-                    {user && user.role === "Admin" ? (
+                    {user !== null && user.role === "Admin" ? (
                       <Tab
                         label="Give Permissions"
                         component={Link}
