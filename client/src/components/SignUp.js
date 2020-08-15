@@ -119,7 +119,6 @@ export default function SignUp() {
           role: "",
           password: "",
         });
-        console.log("Signup done");
         signIn(res.data);
       })
       .catch((err) => {

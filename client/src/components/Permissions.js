@@ -1,4 +1,4 @@
-import React, { useContext, useState, useEffect } from "react";
+import React, { useContext, useState } from "react";
 import { Redirect } from "react-router-dom";
 import axios from "axios";
 
@@ -41,14 +41,44 @@ function Auth(props) {
 }
 
 function Row(props) {
-  const { row } = props;
+  const { row, token } = props;
   const [open, setOpen] = React.useState(false);
+  const [permissions, setPermissions] = React.useState({ loading: true });
   const classes = useRowStyles();
 
-  function onCollapseClick(id) {
-    console.log(id);
-    setOpen(!open);
+  const handleChange = (event) => {
+    updatePerms();
+  };
+
+  function getPerms() {
+    axios({
+      method: "GET",
+      url: `/api/permissions/${row._id}`,
+      headers: {
+        "x-auth-token": token,
+      },
+    }).then((res) => {
+      setPermissions(res.data.perms);
+    });
   }
+
+  function updatePerms() {
+    axios({
+      method: "PATCH",
+      url: `/api/permissions/${row._id}`,
+      headers: {
+        "x-auth-token": token,
+      },
+      data: { AccessGreenButton: !permissions.AccessGreenButton },
+    }).then((res) => {
+      setPermissions(res.data.perms);
+    });
+  }
+
+  function onCollapseClick() {
+    getPerms();
+  }
+
   return (
     <React.Fragment>
       <TableRow className={classes.root}>
@@ -61,7 +91,10 @@ function Row(props) {
           <IconButton
             aria-label="expand row"
             size="small"
-            onClick={() => setOpen(!open)}
+            onClick={() => {
+              onCollapseClick();
+              setOpen(!open);
+            }}
           >
             {open ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
           </IconButton>
@@ -97,12 +130,24 @@ function Row(props) {
               <Typography variant="h6" gutterBottom component="div">
                 Permissions
               </Typography>
-              <FormControlLabel
-                value="Access Green Button"
-                control={<Checkbox color="primary" />}
-                label="Start"
-                labelPlacement="start"
-              />
+              {permissions.loading ? (
+                <Typography variant="caption" gutterBottom component="div">
+                  Loading...
+                </Typography>
+              ) : (
+                <FormControlLabel
+                  control={
+                    <Checkbox
+                      checked={permissions.AccessGreenButton}
+                      onChange={handleChange}
+                      name="AccessGreenButton"
+                      color="primary"
+                    />
+                  }
+                  label="Access Green Button"
+                  labelPlacement="start"
+                />
+              )}
             </Box>
           </Collapse>
         </TableCell>
@@ -119,7 +164,7 @@ export default function Permissions(props) {
     message: "",
   });
   const [page, setPage] = React.useState(0);
-  const [rowsPerPage, setRowsPerPage] = React.useState(10);
+  const [rowsPerPage, setRowsPerPage] = React.useState(5);
   const handleChangePage = (event, newPage) => {
     setPage(newPage);
   };
@@ -132,6 +177,13 @@ export default function Permissions(props) {
   return (
     <React.Fragment>
       <Auth user={user} />
+      <Typography variant="h6" align="center" color="textPrimary">
+        {customers.length === 0
+          ? "Feels Empty!"
+          : customers.includes("loading")
+          ? "Loading..."
+          : null}
+      </Typography>
       <TableContainer component={Paper} style={{ marginTop: "2rem" }}>
         <Table>
           <TableHead>
@@ -143,14 +195,16 @@ export default function Permissions(props) {
             </TableRow>
           </TableHead>
           <TableBody>
-            {customers.map((customer) => (
-              <Row key={customer._id} row={customer} />
-            ))}
+            {customers
+              .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+              .map((customer) => {
+                return <Row key={customer._id} row={customer} token={token} />;
+              })}
           </TableBody>
         </Table>
       </TableContainer>
       <TablePagination
-        rowsPerPageOptions={[10, 25, 100]}
+        rowsPerPageOptions={[3, 5, 10, 15]}
         component="div"
         count={customers.length}
         rowsPerPage={rowsPerPage}
@@ -158,13 +212,6 @@ export default function Permissions(props) {
         onChangePage={handleChangePage}
         onChangeRowsPerPage={handleChangeRowsPerPage}
       />
-      <Typography variant="h6" align="center" color="textPrimary">
-        {customers.length === 0
-          ? "Feels Empty!"
-          : customers.includes("loading")
-          ? "Loading..."
-          : null}
-      </Typography>
       <Snackbar
         open={snack.open}
         message={snack.message}

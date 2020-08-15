@@ -148,5 +148,7 @@ exports.ReadAll = (req, res) => {
       .then((users) => {
         return res.json({ users });
       });
+  } else {
+    return res.status(403).json({ msg: "Forbidden" });
   }
 };

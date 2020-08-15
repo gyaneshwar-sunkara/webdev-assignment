@@ -8,12 +8,17 @@ const { auth } = require("../../middleware/auth");
 const { perms } = require("../../middleware/permissions");
 
 // User controllers
-const { Read, Update, Delete } = require("../../controllers/permissions");
+const { Read, Update } = require("../../controllers/permissions");
 
 // @route   GET api/permissions
-// @desc    Get user data
+// @desc    Get user data (from token)
 // @access  Private
 router.get("/", auth, perms, Read);
+
+// @route   GET api/permissions
+// @desc    Get user data (from id)
+// @access  Private
+router.get("/:id", auth, Read);
 
 // @route   PATCH api/permissions
 // @desc    Update user data

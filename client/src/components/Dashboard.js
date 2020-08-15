@@ -139,7 +139,6 @@ export default function Dashboard() {
                     centered
                   >
                     <Tab label="Home" component={Link} to={`${match.url}`} />
-                    {/* <PermissionsTab user={user} match={match} /> */}
                     {user && user.role === "Admin" ? (
                       <Tab
                         label="Give Permissions"
