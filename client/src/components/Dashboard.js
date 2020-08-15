@@ -40,12 +40,42 @@ export default function Dashboard() {
 
   const [value, setValue] = React.useState(0);
   const [value2, setValue2] = React.useState(1);
-  const [permissions, setPermissions] = React.useState([]);
+  const [permissions, setPermissions] = React.useState(["loading"]);
+  const [customers, setCustomers] = React.useState(["loading"]);
   const { user, token, isSignedIn, signOut } = useContext(GlobalContext);
   const [snack, setSnack] = useState({
     open: false,
     message: "",
   });
+
+  function getCustomers() {
+    axios({
+      method: "GET",
+      url: "/api/users/all",
+      headers: {
+        "x-auth-token": token,
+      },
+    })
+      .then((res) => {
+        setCustomers(res.data.users);
+      })
+      .catch((err) => {
+        if (err.response) {
+          if (err.response.status === 400) {
+            setSnack({ open: true, message: err.response.data.msg });
+          } else if (err.response.status === 500) {
+            setSnack({
+              open: true,
+              message: "Can't seem to reach the server at the moment!",
+            });
+          } else {
+            setSnack({ open: true, message: err.message });
+          }
+        } else {
+          setSnack({ open: true, message: err.message });
+        }
+      });
+  }
 
   function getPermissions() {
     axios({
@@ -78,6 +108,9 @@ export default function Dashboard() {
 
   useEffect(() => {
     getPermissions();
+    if (user.role === "Admin") {
+      getCustomers();
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -126,7 +159,7 @@ export default function Dashboard() {
             <Paper style={{ marginTop: "2rem" }}>
               <Switch>
                 <Route exact path={`${match.path}/permissions`}>
-                  <Permissions />
+                  <Permissions customers={customers} />
                 </Route>
                 <Route exact path={`${match.path}`}>
                   <Home perms={permissions} />

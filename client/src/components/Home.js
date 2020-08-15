@@ -1,6 +1,12 @@
 import React, { useState, useContext } from "react";
 
-import { Grid, Snackbar, Button, makeStyles } from "@material-ui/core";
+import {
+  Grid,
+  Snackbar,
+  Button,
+  makeStyles,
+  Typography,
+} from "@material-ui/core";
 
 import { GlobalContext } from "../context/GlobalState";
 
@@ -42,6 +48,14 @@ export default function Home(props) {
       <div className={classes.root}>
         <Grid className={classes.paper} container spacing={2}>
           <Grid item xs={12}>
+            <Typography variant="h6" align="center" color="textPrimary">
+              {perms.length === 0
+                ? "Feels Empty!"
+                : perms.includes("loading")
+                ? "Loading..."
+                : null}
+            </Typography>
+
             {perms.includes("AccessGreenButton") ? (
               <Button
                 variant="outlined"
